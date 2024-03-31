@@ -9,6 +9,11 @@ Skopefsis is a Java application designed to scan ports on a specified host using
 - **Reverse DNS Lookup**: Skopefsis performs reverse DNS lookup to map IP addresses to hostnames.
 - **Configurable Timeout**: Users can specify a custom timeout value for port scanning.
 - **User-friendly Interface**: Skopefsis offers a straightforward command-line interface for initiating port scans and viewing results.
+- **Integration with Network Scanners**: Integrate with popular network scanning tools to leverage their advanced scanning capabilities.
+- **Integration with Vulnerability Scanners**: Integrate with vulnerability scanners to perform comprehensive security assessments.
+- **Custom Plugin Support**: Support for custom plugins or scripts to extend functionality according to specific requirements.
+- **Integration with Threat Intelligence Platforms**: Integrate with threat intelligence platforms to enrich scan results with information about known threats.
+- **Dynamic Port Range Adjustment**: Automatically adjust the port range based on initial scan results or user feedback.
 
 ## Usage
 1. Compile the source files:
