@@ -1,44 +1,77 @@
 package mi.m4x.project.skopefsis;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Proxy;
-import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class PortScanner {
+    private static final Logger LOGGER = Logger.getLogger(PortScanner.class.getName());
+
+    private boolean useIPv6;;
+
     public static void main(String[] args) {
-        if (args.length < 1 || args.length > 4) {
-            System.out.println("Usage: java PortScanner <host> [<startPort> <endPort>] [<protocol>] [<outputFormat>]");
+        configureLogging();
+
+        boolean useIPv6 = false;
+
+        if (args.length < 3 || args.length > 7) {
+            LOGGER.log(Level.SEVERE, "Invalid number of arguments. Usage: java PortScanner <host> [<startPort> <endPort>] [<protocol>] [<outputFormat>] [<useUDP>] [<numThreads>]");
             return;
         }
 
-        String host = args[0];
+        int argIndex = 0;
+        String host = args[argIndex++];
         int startPort = 1;
         int endPort = PortScannerConstants.MAX_PORT_NUMBER;
         String protocol = "TCP"; // Default protocol
         String outputFormat = "text"; // Default output format
+        boolean useUDP = false; // Default to TCP
         int numThreads = 5; // Default number of threads
-        int rateLimit = 1000; // Default rate limit (1 port per second)
-        Proxy proxy = Proxy.NO_PROXY; // Default proxy (no proxy)
-        boolean useIPv6 = false; // Default to IPv4
 
-        if (args.length >= 3) {
-            try {
-                startPort = Integer.parseInt(args[1]);
-                endPort = Integer.parseInt(args[2]);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid port numbers provided. Using default port range.");
+        try {
+            if (args.length >= 3) {
+                startPort = Integer.parseInt(args[argIndex++]);
+                endPort = Integer.parseInt(args[argIndex++]);
             }
-        }
 
-        if (args.length >= 4) {
-            protocol = args[3].toUpperCase(); // Assuming protocol argument is provided in uppercase
-        }
+            if (args.length >= 4) {
+                protocol = args[argIndex++].toUpperCase();
+            }
 
-        if (args.length >= 5) {
-            outputFormat = args[4].toLowerCase(); // Assuming output format argument is provided in lowercase
+            if (args.length >= 5) {
+                outputFormat = args[argIndex++].toLowerCase();
+            }
+
+            if (args.length >= 6) {
+                useUDP = Boolean.parseBoolean(args[argIndex++]);
+            }
+
+            if (args.length >= 7) {
+                numThreads = Integer.parseInt(args[argIndex++]);
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, "Invalid number format provided.");
+            return;
         }
 
         // Create a new instance of PortScannerEngine with the provided parameters
-        PortScannerEngine scanner = new PortScannerEngine(host, startPort, endPort, protocol, outputFormat, numThreads, rateLimit, proxy, useIPv6);
+        PortScannerEngine scanner = new PortScannerEngine(host, startPort, endPort, protocol, outputFormat, numThreads, useUDP, useIPv6);
         scanner.scanPorts();
+    }
+
+    private static void configureLogging() {
+        try {
+            InputStream inputStream = PortScanner.class.getResourceAsStream("resources/logging.properties");
+            if (inputStream != null) {
+                LogManager.getLogManager().readConfiguration(inputStream);
+            } else {
+                System.err.println("Logging configuration file not found.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
