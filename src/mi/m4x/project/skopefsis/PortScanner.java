@@ -2,7 +2,7 @@ package mi.m4x.project.skopefsis;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Proxy;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -10,68 +10,49 @@ import java.util.logging.Logger;
 public class PortScanner {
     private static final Logger LOGGER = Logger.getLogger(PortScanner.class.getName());
 
-    private boolean useIPv6;;
-
     public static void main(String[] args) {
         configureLogging();
+        Properties config = loadConfig();
 
-        boolean useIPv6 = false;
-
-        if (args.length < 3 || args.length > 7) {
-            LOGGER.log(Level.SEVERE, "Invalid number of arguments. Usage: java PortScanner <host> [<startPort> <endPort>] [<protocol>] [<outputFormat>] [<useUDP>] [<numThreads>]");
+        if (args.length < 1) {
+            LOGGER.log(Level.SEVERE, "Usage: java PortScanner <host>");
             return;
         }
 
-        int argIndex = 0;
-        String host = args[argIndex++];
-        int startPort = 1;
-        int endPort = PortScannerConstants.MAX_PORT_NUMBER;
-        String protocol = "TCP"; // Default protocol
-        String outputFormat = "text"; // Default output format
-        boolean useUDP = false; // Default to TCP
-        int numThreads = 5; // Default number of threads
+        String host = args[0];
+        int startPort = Integer.parseInt(config.getProperty("startPort", "1"));
+        int endPort = Integer.parseInt(config.getProperty("endPort", "65535"));
+        String protocol = config.getProperty("protocol", "TCP").toUpperCase();
+        int numThreads = Integer.parseInt(config.getProperty("numThreads", "10"));
+        boolean useIPv6 = Boolean.parseBoolean(config.getProperty("useIPv6", "false"));
 
-        try {
-            if (args.length >= 3) {
-                startPort = Integer.parseInt(args[argIndex++]);
-                endPort = Integer.parseInt(args[argIndex++]);
-            }
-
-            if (args.length >= 4) {
-                protocol = args[argIndex++].toUpperCase();
-            }
-
-            if (args.length >= 5) {
-                outputFormat = args[argIndex++].toLowerCase();
-            }
-
-            if (args.length >= 6) {
-                useUDP = Boolean.parseBoolean(args[argIndex++]);
-            }
-
-            if (args.length >= 7) {
-                numThreads = Integer.parseInt(args[argIndex++]);
-            }
-        } catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE, "Invalid number format provided.");
-            return;
-        }
-
-        // Create a new instance of PortScannerEngine with the provided parameters
-        PortScannerEngine scanner = new PortScannerEngine(host, startPort, endPort, protocol, outputFormat, numThreads, useUDP, useIPv6);
+        PortScannerEngine scanner = new PortScannerEngine(host, startPort, endPort, protocol, numThreads, useIPv6);
         scanner.scanPorts();
     }
 
     private static void configureLogging() {
-        try {
-            InputStream inputStream = PortScanner.class.getResourceAsStream("resources/logging.properties");
+        try (InputStream inputStream = PortScanner.class.getResourceAsStream("/logging.properties")) {
             if (inputStream != null) {
                 LogManager.getLogManager().readConfiguration(inputStream);
             } else {
-                System.err.println("Logging configuration file not found.");
+                LOGGER.log(Level.WARNING, "Logging configuration file not found. Using default logging configuration.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error configuring logging", e);
         }
+    }
+
+    private static Properties loadConfig() {
+        Properties properties = new Properties();
+        try (InputStream inputStream = PortScanner.class.getResourceAsStream("/config.properties")) {
+            if (inputStream != null) {
+                properties.load(inputStream);
+            } else {
+                LOGGER.log(Level.WARNING, "Configuration file not found. Using default values.");
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error loading configuration", e);
+        }
+        return properties;
     }
 }

@@ -1,41 +1,62 @@
 # Skopefsis - Multi-threaded Port Scanning Tool
 Greek for "Scanner" or "Scout"
 
-Skopefsis is a Java application designed to scan ports on a specified host using multiple threads for faster execution. It provides a simple command-line interface for scanning ports and performing additional tasks such as banner grabbing and reverse DNS lookup.
+Skopefsis is a Java application designed to scan ports on a specified host using multiple threads for faster execution. It provides a simple command-line interface for scanning ports and supports additional features such as IPv6 scanning and configurable options.
 
 ## Features
-- **Multi-threaded Port Scanning**: Skopefsis utilizes multiple threads for parallel scanning of ports, improving speed and efficiency.
-- **Banner Grabbing**: Retrieve banners from open ports to identify services running on those ports.
-- **Reverse DNS Lookup**: Perform reverse DNS lookup to map IP addresses to hostnames.
-- **Configurable Timeout**: Users can specify a custom timeout value for port scanning.
-- **User-friendly Interface**: Skopefsis offers a straightforward command-line interface for initiating port scans and viewing results.
-- **Integration with Network Scanners**: Integrate with popular network scanning tools to leverage their advanced scanning capabilities.
-- **Integration with Vulnerability Scanners**: Integrate with vulnerability scanners to perform comprehensive security assessments.
-- **Custom Plugin Support**: Support for custom plugins or scripts to extend functionality according to specific requirements.
-- **Integration with Threat Intelligence Platforms**: Integrate with threat intelligence platforms to enrich scan results with information about known threats.
-- **Dynamic Port Range Adjustment**: Automatically adjust the port range based on initial scan results or user feedback.
-- **IPv6 Support**: Option to enable IPv6 support for scanning.
+- **Multi-threaded Port Scanning**: Leverages multiple threads for parallel scanning, improving speed and efficiency.
+- **TCP and UDP Scanning**: Supports both TCP and UDP protocols for comprehensive port scanning.
+- **Configurable Options**: Users can customize the port range, protocol, timeout, and number of threads via a configuration file or command-line arguments.
+- **IPv6 Support**: Option to enable IPv6 scanning for modern network environments.
+- **Dynamic Rate Limiting**: Ensures efficient scanning while avoiding excessive resource usage.
+- **Error Handling and Logging**: Provides robust error handling and logging for better debugging and monitoring.
+- **Lightweight and Modular**: Simplified design with minimal dependencies for easy integration and maintenance.
 
 ## Usage
-1. Compile the source files:
+1. **Compile the Source Files**:
     ```
-    javac -cp src src/mi/m4x/project/skopefsis/PortScanner.java src/mi/m4x/project/skopefsis/PortScannerEngine.java src/mi/m4x/project/skopefsis/PortScannerThread.java src/mi/m4x/project/skopefsis/PortScannerConstants.java src/mi/m4x/project/skopefsis/PortScannerUtils.java
+    javac -cp src src/mi/m4x/project/skopefsis/PortScanner.java src/mi/m4x/project/skopefsis/PortScannerEngine.java src/mi/m4x/project/skopefsis/PortScannerThread.java src/mi/m4x/project/skopefsis/PortScannerConstants.java
     ```
 
-2. Run the main class:
-   ```
-    java -cp src mi.m4x.project.skopefsis.PortScanner <host> [<startPort> <endPort>] [<protocol>] [<outputFormat>] [<useUDP>] [<numThreads>] [<useIPv6>]
-   ```
+2. **Run the Application**:
+    ```
+    java -cp src mi.m4x.project.skopefsis.PortScanner <host>
+    ```
    Replace `<host>` with the hostname or IP address of the target host.
 
-Replace `<host>` with the hostname or IP address of the target host. Additional optional arguments can be provided as needed.
+3. **Configuration**:
+   - Modify the `config.properties` file to customize scanning options:
+     ```ini
+     startPort=1
+     endPort=65535
+     protocol=TCP
+     numThreads=10
+     useIPv6=false
+     ```
+   - Alternatively, pass arguments directly to the application:
+     ```
+     java -cp src mi.m4x.project.skopefsis.PortScanner <host> [<startPort> <endPort>] [<protocol>] [<numThreads>] [<useIPv6>]
+     ```
 
-3. Follow the prompts to initiate the port scan and view the results.
+4. **View Results**:
+   - The application outputs the status of scanned ports directly to the console.
 
-## Additional Tasks
-- **Perform Banner Grabbing**: Retrieve banners from open ports to identify services running on those ports.
-- **Perform Reverse DNS Lookup**: Perform reverse DNS lookup to map IP addresses to hostnames.
+## Example
+To scan all TCP ports on `127.0.0.1` using 10 threads:
+```
+java -cp src mi.m4x.project.skopefsis.PortScanner 127.0.0.1
+```
+## Configuration File
+The `config.properties` file allows you to define default settings:
+```ini
+startPort=1
+endPort=65535
+protocol=TCP
+numThreads=10
+useIPv6=false
+```
 
-### LICENSE
-
-This project is under the MIT LICENSE - see the [LICENSE](LICENSE.txt) file for details.
+## Logging
+Logging is configured via a logging.properties file. If not found, default logging settings are used.
+## LICENSE
+This project is under the MIT LICENSE - see the LICENSE file for details.
